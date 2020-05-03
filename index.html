@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    {{name}}
+    <p>{{name}}</p>
+    <p h-text="name"></p>
+    <p>{{age}}</p>
+    <p>{{doubleAge}}</p>
+    <input type="text" h-model="name">
+    <button @click="changeName">点我</button>
+    <div h-html="html"></div>
+  </div>
+  <script src="./compile.js"></script>
+  <script src="./hxlvue.js"></script>
+  <script>
+    const vm = new HxlVue({
+      el: '#app', 
+      data: {
+        name: 'hxl',
+        age: 18,
+        html: '<button>我是一个按钮</button>'
+      },
+      created() {
+        console.log('开始拉');
+        setTimeout(() => {
+          this.name = '我在测试created'
+        }, 1500);
+      }
+    })
+  </script>
+</body>
+
+</html>

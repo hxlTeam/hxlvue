@@ -18,10 +18,12 @@ class HxlVue {
     // 2、读属性会触发get(),就会执行Dep.target && dep.addDep(Dep.target)
     // 3、这样就把刚才指向的那个watcher添加到家deps中了
     // 4、接下来如果执行set(),就能通知watcher了
-    new Watcher();
-    this.$data.test;
-    new Watcher();
-    this.$data.foo.boo;
+    // new Watcher();
+    // this.$data.test;
+    // new Watcher();
+    // this.$data.foo.boo;
+
+    new Compile(options.el, this);
   }
 
   observe(obj) {
@@ -35,7 +37,7 @@ class HxlVue {
       this.proxyData(key);
     })
   }
-  
+
   proxyData(key) {
     Object.defineProperty(this, key, {
       get() {
