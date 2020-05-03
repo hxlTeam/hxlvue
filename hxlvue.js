@@ -11,6 +11,17 @@ class HxlVue {
     this.$data = options.data;
     // 响应化
     this.observe(this.$data);
+
+    // 测试代码：测试依赖收集
+    // 0、创建watcher
+    // 1、故意读一下data中的某个属性
+    // 2、读属性会触发get(),就会执行Dep.target && dep.addDep(Dep.target)
+    // 3、这样就把刚才指向的那个watcher添加到家deps中了
+    // 4、接下来如果执行set(),就能通知watcher了
+    new Watcher();
+    this.$data.test;
+    new Watcher();
+    this.$data.foo.boo;
   }
 
   observe(obj) {
@@ -24,17 +35,49 @@ class HxlVue {
   }
 
   defineReactive(obj, key, val) {
+    const dep = new Dep();
+
     Object.defineProperty(obj, key, {
       get() {
+        // 将Dep.target添加到deps中
+        Dep.target && dep.addDep(Dep.target);
         return val;
       },
       set(newVal) {
-        if(newVal !== val) {
+        if (newVal !== val) {
           val = newVal;
-          console.log(`${key}更新了：${newVal}`);
+          // console.log(`${key}更新了：${newVal}`);
+          dep.notify();
         }
       }
     })
+    // 递归
     this.observe(val);
+  }
+}
+
+class Dep {
+  constructor() {
+    // 将来的依赖watcher都放在deps里
+    this.deps = [];
+  }
+  // 
+  addDep(dep) {
+    this.deps.push(dep);
+  }
+  // 通知所有的deps，统一去更新
+  notify() {
+    this.deps.forEach(dep => dep.update());
+  }
+}
+
+class Watcher {
+  constructor() {
+    // Dep的静态属性指向当前的watcher
+    Dep.target = this;
+  }
+
+  update() {
+    console.log('属性更新了');
   }
 }
