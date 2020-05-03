@@ -30,10 +30,12 @@ class Compile {
     Array.from(childNodes).forEach(node => {
       // 判断节点类型
       if (node.nodeType === 1) {// element节点
-        console.log(`编译元素节点:${node.nodeName}`);
+        // console.log(`编译元素节点:${node.nodeName}`);
+        this.compileElement(node);
       }
       else if (this.isInterpolation(node)) { // 插值表达式
-        console.log(`编译插值文本:${node.textContent}`);
+        // console.log(`编译插值文本:${node.textContent}`);
+        this.compileText(node);
       }
       // 递归子节点
       if (node.childNodes && node.childNodes.length > 0) {
@@ -44,6 +46,26 @@ class Compile {
   }
 
   isInterpolation(node) {
-    return node.nodeType === 3 && /\{\{.*\}\}/.test(node.textContent); // 是文本且符合{{}}
+    return node.nodeType === 3 && /\{\{(.*)\}\}/.test(node.textContent); // 是文本且符合{{}}
+  }
+
+  compileElement(node) { }
+
+  compileText(node) {
+    console.log(RegExp.$1);
+    this.update(node, this.$vm, RegExp.$1, 'text');
+  }
+
+  update(node, vm, exp, dir) {
+    let updatorFn = this[dir + 'Updator'];
+    updatorFn && updatorFn(node, vm[exp]);
+    // 依赖收集
+    new Watcher(vm, exp, value => {
+      updatorFn && updatorFn(node, value);
+    });
+  }
+
+  textUpdator(node, val) {
+    node.textContent = val;
   }
 }

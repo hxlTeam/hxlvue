@@ -24,6 +24,10 @@ class HxlVue {
     // this.$data.foo.boo;
 
     new Compile(options.el, this);
+
+    if (options.created) {
+      options.created.call(this);
+    }
   }
 
   observe(obj) {
@@ -87,12 +91,19 @@ class Dep {
 }
 
 class Watcher {
-  constructor() {
+  constructor(vm, key, cb) {
+    this.vm = vm;
+    this.key = key;
+    this.cb = cb;
+
     // Dep的静态属性指向当前的watcher
     Dep.target = this;
+    this.vm[this.key]; // 添加watcher到deps
+    Dep.target = null;
   }
 
   update() {
-    console.log('属性更新了');
+    // console.log('属性更新了');
+    this.cb.call(this.vm, this.vm[this.key]);
   }
 }

@@ -19,8 +19,8 @@
     <button @click="changeName">点我</button>
     <div h-html="html"></div>
   </div>
-  <script src="./compile.js"></script>
   <script src="./hxlvue.js"></script>
+  <script src="./compile.js"></script>
   <script>
     const vm = new HxlVue({
       el: '#app', 
@@ -32,7 +32,7 @@
       created() {
         console.log('开始拉');
         setTimeout(() => {
-          this.name = '我在测试created'
+          this.name = '我在测试'
         }, 1500);
       }
     })
