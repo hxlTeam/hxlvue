@@ -31,6 +31,19 @@ class HxlVue {
     // 遍历对象
     Object.keys(obj).forEach(key => {
       this.defineReactive(obj, key, obj[key]);
+      // 把属性代理到vm上
+      this.proxyData(key);
+    })
+  }
+  
+  proxyData(key) {
+    Object.defineProperty(this, key, {
+      get() {
+        return this.$data[key];
+      },
+      set(newVal) {
+        this.$data[key] = newVal;
+      }
     })
   }
 
