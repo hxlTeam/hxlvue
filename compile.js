@@ -49,7 +49,30 @@ class Compile {
     return node.nodeType === 3 && /\{\{(.*)\}\}/.test(node.textContent); // 是文本且符合{{}}
   }
 
-  compileElement(node) { }
+  compileElement(node) {
+    // <div h-text="test" @click="handleClick"></div>
+    let nodeAttrs = node.attributes;
+    Array.from(nodeAttrs).forEach(attr => {
+      const attrName = attr.name;
+      const exp = attr.value;
+      if (this.isDirective(attrName)) {
+        const dir = attrName.substring(2);
+        this[dir] && this[dir](node, this.$vm, exp);
+      }
+      else if (this.isEvent(attrName)) {
+        const dir = attrName.substring(1);
+        this.eventHandler(node, this.$vm, exp, dir);
+      }
+    })
+  }
+
+  isDirective(attr) {
+    return attr.indexOf('h-') === 0;
+  }
+
+  isEvent(attr) {
+    return attr.indexOf('@') === 0;
+  }
 
   compileText(node) {
     console.log(RegExp.$1);
@@ -57,7 +80,7 @@ class Compile {
   }
 
   update(node, vm, exp, dir) {
-    let updatorFn = this[dir + 'Updator'];
+    let updatorFn = this[dir + 'Updater'];
     updatorFn && updatorFn(node, vm[exp]);
     // 依赖收集
     new Watcher(vm, exp, value => {
@@ -65,7 +88,39 @@ class Compile {
     });
   }
 
-  textUpdator(node, val) {
+  text(node, vm, exp) {
+    this.update(node, vm, exp, 'text');
+  }
+
+  textUpdater(node, val) {
     node.textContent = val;
+  }
+
+  eventHandler(node, vm, exp, dir) {
+    const fn = vm.$options.methods && vm.$options.methods[exp];
+    if (dir && fn) {
+      node.addEventListener(dir, fn.bind(vm));
+    }
+  }
+
+  html(node, vm, exp) {
+    this.update(node, vm, exp, 'html');
+  }
+
+  model(node, vm, exp) {
+    // data -> view
+    this.update(node, vm, exp, 'model');
+    // view -> data
+    node.addEventListener('input', e => {
+      vm[exp] = e.target.value;
+    });
+  }
+
+  htmlUpdater(node, val) {
+    node.innerHTML = val;
+  }
+
+  modelUpdater(node, val) {
+    node.value = val;
   }
 }

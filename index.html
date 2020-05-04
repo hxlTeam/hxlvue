@@ -10,7 +10,6 @@
 
 <body>
   <div id="app">
-    {{name}}
     <p>{{name}}</p>
     <p h-text="name"></p>
     <p>{{age}}</p>
@@ -34,6 +33,12 @@
         setTimeout(() => {
           this.name = '我在测试'
         }, 1500);
+      },
+      methods: {
+        changeName(){
+          this.name = '点我改变';
+          this.age = 1;
+        }
       }
     })
   </script>
